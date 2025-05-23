@@ -86,7 +86,7 @@ public struct CustomAlertView: View {
         self.shadowY = shadowY
         self.backgroundColor = backgroundColor
         self.backgroundOpacity = backgroundOpacity
-        self._isShowing = isShowing
+        self._isShowing = .constant(true)
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -123,48 +123,60 @@ extension CustomAlertView {
     
     // Main alert UI
        private var alertContent: some View {
-           VStack(spacing: 20) {
+           ZStack(alignment: .top) {
+             
+               VStack(spacing: 20) {
+                   
+                   VStack(spacing: 10) {
+                       if let title {
+                           Text(title)
+                               .multilineTextAlignment(.center)
+                               .padding(.horizontal, 20)
+                               .font(.body.bold())
+                               .fixedSize(horizontal: false, vertical: true)
+                       }
+                       Text(message)
+                           .multilineTextAlignment(.center)
+                           .padding(.horizontal, 20)
+                           .fixedSize(horizontal: false, vertical: true)
+                   }
+                   .padding(.top, 30)
+                   HStack(spacing: 16) {
+                       if let cancel = cancelText {
+                           Button(cancel) {
+                               withAnimation { dismiss() }
+                               onCancel?()
+                           }
+                           .buttonStyle(AlertButtonStyle(background: cancelButtonBackground, foreground: cancelButtonForeground))
+                       }
+                       
+                       Button(confirmText) {
+                           withAnimation { dismiss() }
+                           onConfirm()
+                       }
+                       .buttonStyle(AlertButtonStyle(background: confirmButtonBackground, foreground: confirmButtonForeground))
+                   }
+                   .padding(.horizontal, 20)
+               }
+               .padding()
+               .background(Color.white)
+               .clipShape(CutoutTopSemicircleRect(cornerRadius: 20, semicircleRadius: 35))
+               .frame(maxWidth: .infinity)
+               .padding(.horizontal, 30)
+               .shadow(color: shadowColor, radius: shadowRadius, x: shadowX, y: shadowY)
+               
                if let image = image {
                    image
                        .resizable()
                        .scaledToFit()
-                       .frame(width: 80, height: 80)
+                       .frame(width: 40, height: 40)
+                       .padding(10)
+                       .background(.white)
+                       .clipShape(Circle())
+                       .offset(y: -30)
+                       .shadow(color: shadowColor, radius: shadowRadius, x: shadowX, y: shadowY)
                }
-               VStack(spacing: 6) {
-                   if let title {
-                       Text(title)
-                           .multilineTextAlignment(.center)
-                           .padding(.horizontal, 20)
-                           .font(.body.bold())
-                           .fixedSize(horizontal: false, vertical: true)
-                   }
-                   Text(message)
-                       .multilineTextAlignment(.center)
-                       .padding(.horizontal, 20)
-                       .fixedSize(horizontal: false, vertical: true)
-               }
-               HStack(spacing: 16) {
-                   if let cancel = cancelText {
-                       Button(cancel) {
-                           withAnimation { dismiss() }
-                           onCancel?()
-                       }
-                       .buttonStyle(AlertButtonStyle(background: cancelButtonBackground, foreground: cancelButtonForeground))
-                   }
-                   
-                   Button(confirmText) {
-                       withAnimation { dismiss() }
-                       onConfirm()
-                   }
-                   .buttonStyle(AlertButtonStyle(background: confirmButtonBackground, foreground: confirmButtonForeground))
-               }
-               .padding(.horizontal, 20)
            }
-           .padding()
-           .background(Color.white)
-           .cornerRadius(15)
-           .frame(maxWidth: 300)
-           .shadow(color: shadowColor, radius: shadowRadius, x: shadowX, y: shadowY)
        }
        
        // Alert dismiss animation
@@ -192,8 +204,8 @@ struct CustomAlertView_Previews: PreviewProvider {
             .customAlert(
                 isPresented: $showAlert,
                 image: Image(systemName: "exclamationmark.triangle.fill"),
-                title: "Este es el título",
-                message: "This is a customizable SwiftUI alert.",
+                title: "Este es el título de mi alert personalizado",
+                message: "This is a customizable SwiftUI alert. Meto mas contenido para ver como sale el alert",
                 confirmText: "Yes",
                 cancelText: "No",
                 confirmButtonBackground: .green,
